@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
 import tumblpy
-import MySQLdb
+import sqlite3
 
 #init with some key
 t = tumblpy.Tumblpy(app_key = 'V55FKUe1lMSdx0UyGSFknmO8DoSaeNzT9oByUwOE1Hvp7diQJ7',
             app_secret = 'TD9eTgRhoo8ceu0cjcF0nROWAAMkst1uAkSx5XuSOjnYxrGq50',
             callback_url = 'whatever.com/notimportant_now')
+
 #we don't need this code
 auth_props = t.get_authentication_tokens()
 auth_url = auth_props['auth_url']
@@ -37,5 +38,5 @@ for i in range(num_iterations):
             continue
         #print out the info, move to DB later
         print posts['posts'][j]['note_count']
-        print posts['posts'][j]['tags']
+        print [ y.strip() for x in posts['posts'][j]['tags'] for y in x.split('\n')  ]
         print posts['posts'][j]['photos'][0]['original_size']['url']
