@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import tumblpy
+import MySQLdb
+
 #init with some key
 t = tumblpy.Tumblpy(app_key = 'V55FKUe1lMSdx0UyGSFknmO8DoSaeNzT9oByUwOE1Hvp7diQJ7',
             app_secret = 'TD9eTgRhoo8ceu0cjcF0nROWAAMkst1uAkSx5XuSOjnYxrGq50',
