@@ -1,0 +1,4 @@
+python-tumblpy==0.6.3
+requests==0.14.2
+simplejson==2.6.2
+wsgiref==0.1.2
