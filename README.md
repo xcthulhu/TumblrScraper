@@ -1,9 +1,16 @@
 TumblrScraper
 =============
 
-scrap images on tumblr with tags and notes
+scrape images on tumblr with tags and notes
 
+INSTALL
+=======
 
-REQUIRE python-tumblpy  ->  pip install python-tumblpy
-REQUIRE MySQL-python    ->  pip install MySQL-python
+  $ make requirements
 
+(requires virtualenv installed)
+
+TO RUN
+======
+
+  $ make scrape
