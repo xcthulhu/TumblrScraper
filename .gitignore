@@ -1,3 +1,7 @@
 venv
 requirements
 .DS_Store
+
+*.pyc
+
+tumblr_photos.db
