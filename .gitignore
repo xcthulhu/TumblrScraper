@@ -1,7 +1,6 @@
 venv
+virtualenv.py
 requirements
 .DS_Store
-
 *.pyc
-
-tumblr_photos.db
+*.db
