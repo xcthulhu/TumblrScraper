@@ -3,8 +3,11 @@ PYTHON=$(ENV) python
 
 all : requirements
 
-venv :
-	virtualenv -p python2.7 $@	
+virtualenv.py :
+	wget --no-check-certificate https://raw.github.com/pypa/virtualenv/master/virtualenv.py
+
+venv : virtualenv.py
+	python virtualenv.py -p python2.7 $@	
 
 requirements : freeze.txt venv
 	$(ENV) pip install -r $<
