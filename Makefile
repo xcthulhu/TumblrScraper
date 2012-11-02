@@ -20,4 +20,4 @@ scrape : requirements
 	$(PYTHON) tumblrscraper.py
 
 clean :
-	
+	rm -f *.db *.pyc
