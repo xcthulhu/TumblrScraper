@@ -5,7 +5,7 @@ import sqlite3
 import ts_model
 import sys
 
-if __name__ == "__main__" : 
+def tumblr_scraper(base_url,db_name,num_images,start_offset=0,limit=20,url_type='blog'):
     #init with some key
     t = tumblpy.Tumblpy(app_key = 'V55FKUe1lMSdx0UyGSFknmO8DoSaeNzT9oByUwOE1Hvp7diQJ7',
                         app_secret = 'TD9eTgRhoo8ceu0cjcF0nROWAAMkst1uAkSx5XuSOjnYxrGq50',
@@ -17,30 +17,20 @@ if __name__ == "__main__" :
     oauth_token = auth_props['oauth_token']
     oauth_token_secret = auth_props['oauth_token_secret']
 
-    #ok, here is the thing
-
-    #subject to cmd input
-    blog_url='http://%s.tumblr.com' % sys.argv[1]
-    db_name = '%s.db' % sys.argv[1]
-    num_images = int(sys.argv[2])
-    if len(sys.argv) >= 4:
-       start_offset = int(sys.argv[3])
-    else :
-       start_offset = 0
-
     #running
     #get db connection
     print "Connecting to %s" % db_name
     conn = ts_model.touch_db(db_name)
     c = conn.cursor()
     #scraping...
+    print "Scraping %s" % base_url
     n = 0
     i = 0
-    limit = 20
     while n < num_images :
         #get the posts
         print "Get posts %i to %i" % (i*limit+start_offset,(1+i)*limit+start_offset)
-        posts = t.get('posts',blog_url=blog_url,params={'limit':limit, 'offset':i*limit+start_offset})
+        if url_type == 'blog':
+           posts = t.get('posts',blog_url=base_url,params={'limit':limit, 'offset':i*limit+start_offset})
         i += 1
         for p in posts['posts']:
           #some posts don't have photo
@@ -57,9 +47,20 @@ if __name__ == "__main__" :
                                      for y in x.split('\n') ]
           url = p['photos'][0]['original_size']['url']
           #if this is slow, switch to batch execute instead
-          print "Found %s : %s %s" % (sys.argv[1],url,"#" + " #".join(tags))
+          print "Found %s %i: %s %s" % (sys.argv[1],n,url,"#" + " #".join(tags))
           ts_model.add_tags(c, tags)
           ts_model.add_photo(c, url, note_count)
           ts_model.link_tags_photo(c, tags, url)
           conn.commit()
     conn.close()
+
+if __name__ == "__main__" : 
+    #subject to cmd input
+    base_url='http://%s.tumblr.com' % sys.argv[1]
+    db_name = '%s.db' % sys.argv[1]
+    num_images = int(sys.argv[2])
+    if len(sys.argv) >= 4:
+       start_offset = int(sys.argv[3])
+    else :
+       start_offset = 0
+    tumblr_scraper(base_url,db_name,num_images,start_offset=start_offset,limit=20)
