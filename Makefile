@@ -1,7 +1,7 @@
 ENV=. venv/bin/activate &&
 PYTHON=$(ENV) python
 
-all : requirements deviantart-photos kittens-photos
+all : deviantart-photos
 
 virtualenv.py :
 	wget --no-check-certificate https://raw.github.com/pypa/virtualenv/master/virtualenv.py
@@ -17,7 +17,8 @@ freeze.txt :
 	$(ENV) pip freeze > $@
 
 %-photos : requirements
-	$(PYTHON) tumblrscraper.py $(@:-photos=) 100000
+	$(PYTHON) tumblrscraper.py $(@:-photos=) 10000
+	touch $@
 
 clean :
 	rm -f *.db *.pyc
