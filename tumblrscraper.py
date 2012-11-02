@@ -32,21 +32,21 @@ if __name__ == "__main__" :
     for i in range(num_iterations):
         #get the posts
         posts = t.get('posts',blog_url=blog_url,params={'limit':20, 'offset':(i*num_iterations)+start_offet})
-        for j in range(len(posts['posts'])):
+        for p in posts['posts']:
           #some posts don't have photo
-          if(not('photos' in  posts['posts'][j])): continue
+          if(not('photos' in  p)): continue
           #some posts have more than one image, we will ignore that for now
-          if(len(posts['posts'][j]['photos']) != 1): continue
+          if(len(p['photos']) != 1): continue
           #some posts don't have tag
-          if(len(posts['posts'][j]['tags']) == 0): continue
+          if(len(p['tags']) == 0): continue
           #print out the info, move to DB later
-          note_count = posts['posts'][j]['note_count']
-          tags = [ y.strip() for x in posts['posts'][j]['tags'] 
-                             for y in x.split('\n') ]
-          url = posts['posts'][j]['photos'][0]['original_size']['url']
+          note_count = p['note_count']
+          tags = [ y.strip().lower() for x in p['tags']
+                                     for y in x.split('\n') ]
+          url = p['photos'][0]['original_size']['url']
           #if this is slow, switch to batch execute instead
-          tag_ids = ts_model.add_tags(c, tags, verbose=True)
-          photo_id = ts_model.add_photo(c, url, note_count, verbose=True)
-          ts_model.link_tags_photo(c, tag_ids, photo_id, verbose=True)
+          ts_model.add_tags(c, tags)
+          ts_model.add_photo(c, url, note_count)
+          ts_model.link_tags_photo(c, tags, url, verbose=True)
           conn.commit()
     conn.close()
