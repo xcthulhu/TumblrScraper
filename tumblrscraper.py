@@ -3,6 +3,7 @@
 import tumblpy
 import sqlite3
 import ts_model
+import sys
 
 if __name__ == "__main__" : 
     #init with some key
@@ -19,19 +20,28 @@ if __name__ == "__main__" :
     #ok, here is the thing
 
     #subject to cmd input
-    blog_url='http://deviantart.tumblr.com'
-    num_images = 40
-    start_offet = 0;
+    blog_url='http://%s.tumblr.com' % sys.argv[1]
+    db_name = '%s.db' % sys.argv[1]
+    num_images = int(sys.argv[2])
+    if len(sys.argv) >= 4:
+       start_offset = int(sys.argv[3])
+    else :
+       start_offset = 0
 
     #running
-    num_iterations = num_images / 20
     #get db connection
-    conn = ts_model.touch_db('tumblr_photos.db')
+    print "Connecting to %s" % db_name
+    conn = ts_model.touch_db(db_name)
     c = conn.cursor()
     #scraping...
-    for i in range(num_iterations):
+    n = 0
+    i = 0
+    limit = 20
+    while n < num_images :
         #get the posts
-        posts = t.get('posts',blog_url=blog_url,params={'limit':20, 'offset':(i*num_iterations)+start_offet})
+        print "Get posts %i to %i" % (i*limit+start_offset,(1+i)*limit+start_offset)
+        posts = t.get('posts',blog_url=blog_url,params={'limit':limit, 'offset':i*limit+start_offset})
+        i += 1
         for p in posts['posts']:
           #some posts don't have photo
           if(not('photos' in  p)): continue
@@ -39,14 +49,17 @@ if __name__ == "__main__" :
           if(len(p['photos']) != 1): continue
           #some posts don't have tag
           if(len(p['tags']) == 0): continue
+          # If we made it through that, we have a new photo
+          n += 1
           #print out the info, move to DB later
           note_count = p['note_count']
           tags = [ y.strip().lower() for x in p['tags']
                                      for y in x.split('\n') ]
           url = p['photos'][0]['original_size']['url']
           #if this is slow, switch to batch execute instead
+          print "Found %s : %s %s" % (sys.argv[1],url,"#" + " #".join(tags))
           ts_model.add_tags(c, tags)
           ts_model.add_photo(c, url, note_count)
-          ts_model.link_tags_photo(c, tags, url, verbose=True)
+          ts_model.link_tags_photo(c, tags, url)
           conn.commit()
     conn.close()
